@@ -210,6 +210,8 @@ defmodule Oban do
 
   @impl Supervisor
   def init(%Config{plugins: plugins, queues: queues} = conf) do
+    Process.sleep(10_000)
+
     children = [
       {Notifier, conf: conf, name: Registry.via(conf.name, Notifier)},
       {Midwife, conf: conf, name: Registry.via(conf.name, Midwife)},
