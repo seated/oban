@@ -8,6 +8,8 @@ defmodule Oban do
 
   @moduledoc since: "0.1.0"
 
+  require Logger
+
   use Supervisor
 
   alias Ecto.{Changeset, Multi}
@@ -210,7 +212,7 @@ defmodule Oban do
 
   @impl Supervisor
   def init(%Config{plugins: plugins, queues: queues} = conf) do
-    Process.sleep(10_000)
+    Logger.info("[Oban] - init/1 begin")
 
     children = [
       {Notifier, conf: conf, name: Registry.via(conf.name, Notifier)},
@@ -221,7 +223,9 @@ defmodule Oban do
     children = children ++ Enum.map(plugins, &plugin_child_spec(&1, conf))
     children = children ++ Enum.map(queues, &QueueSupervisor.child_spec(&1, conf))
     children = children ++ event_child_spec(conf)
-
+    Logger.info("[Oban] - init/1 - before sleep")
+    Process.sleep(10_000)
+    Logger.info("[Oban] - init/1 - after sleep")
     Supervisor.init(children, strategy: :one_for_one)
   end
 
