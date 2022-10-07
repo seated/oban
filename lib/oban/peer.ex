@@ -85,7 +85,7 @@ defmodule Oban.Peer do
   @spec leader?(Config.t() | GenServer.server()) :: boolean()
   def leader?(conf_or_name \\ Oban, timeout \\ 30_000)
 
-  def leader?(%Config{} = conf, timeout \\ 30000) do
+  def leader?(%Config{} = conf, timeout) do
     case Registry.whereis(conf.name, Oban.Peer) do
       pid when is_pid(pid) ->
         conf.peer.leader?(pid, timeout)
