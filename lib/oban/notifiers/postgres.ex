@@ -73,7 +73,7 @@ defmodule Oban.Notifiers.Postgres do
   """
   @spec listen(GenServer.server(), channels :: list(Oban.Notifier.channel())) :: :ok
   def listen(server, channels) do
-    Simple.call(server, {:listen, channels})
+    Simple.call(server, {:listen, channels}, 10000)
   end
 
   @doc """
