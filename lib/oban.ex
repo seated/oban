@@ -224,7 +224,7 @@ defmodule Oban do
     children = children ++ Enum.map(queues, &QueueSupervisor.child_spec(&1, conf))
     children = children ++ event_child_spec(conf)
     Logger.info("[Oban] - init/1 - before sleep")
-    Process.sleep(10_000)
+    Process.sleep(15_000)
     Logger.info("[Oban] - init/1 - after sleep")
     Supervisor.init(children, strategy: :one_for_one)
   end
