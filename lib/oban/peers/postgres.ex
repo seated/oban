@@ -48,7 +48,7 @@ defmodule Oban.Peers.Postgres do
   end
 
   @impl Oban.Peer
-  def leader?(pid, timeout \\ 5_000) do
+  def leader?(pid, timeout \\ 30_000) do
     GenServer.call(pid, :leader?, timeout)
   end
 

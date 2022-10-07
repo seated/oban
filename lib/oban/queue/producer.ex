@@ -28,12 +28,12 @@ defmodule Oban.Queue.Producer do
 
   @spec check(GenServer.name()) :: Oban.queue_state()
   def check(producer) do
-    GenServer.call(producer, :check)
+    GenServer.call(producer, :check, 30000)
   end
 
   @spec shutdown(GenServer.name()) :: :ok
   def shutdown(producer) do
-    GenServer.call(producer, :shutdown)
+    GenServer.call(producer, :shutdown, 30000)
   end
 
   # Callbacks
