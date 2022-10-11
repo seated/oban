@@ -212,8 +212,6 @@ defmodule Oban do
 
   @impl Supervisor
   def init(%Config{plugins: plugins, queues: queues} = conf) do
-    Logger.info("[Oban] - init/1 begin")
-
     children = [
       {Notifier, conf: conf, name: Registry.via(conf.name, Notifier)},
       {Midwife, conf: conf, name: Registry.via(conf.name, Midwife)},
@@ -223,9 +221,7 @@ defmodule Oban do
     children = children ++ Enum.map(plugins, &plugin_child_spec(&1, conf))
     children = children ++ Enum.map(queues, &QueueSupervisor.child_spec(&1, conf))
     children = children ++ event_child_spec(conf)
-    Logger.info("[Oban] - init/1 - before sleep")
-    Process.sleep(15_000)
-    Logger.info("[Oban] - init/1 - after sleep")
+
     Supervisor.init(children, strategy: :one_for_one)
   end
 
