@@ -26,6 +26,8 @@ defmodule Oban.Notifiers.Postgres do
   alias Oban.{Config, Repo}
   alias Postgrex.SimpleConnection, as: Simple
 
+  require Logger
+
   @mappings %{
     gossip: "oban_gossip",
     insert: "oban_insert",
@@ -73,6 +75,7 @@ defmodule Oban.Notifiers.Postgres do
   """
   @spec listen(GenServer.server(), channels :: list(Oban.Notifier.channel())) :: :ok
   def listen(server, channels) do
+    Logger.info("[Oban Notifier Postgres] - server: #{inspect(server)}, channels: #{inspect(channels)}")
     Simple.call(server, {:listen, channels}, 5000)
   end
 
