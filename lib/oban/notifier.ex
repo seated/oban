@@ -61,6 +61,8 @@ defmodule Oban.Notifier do
 
   alias Oban.{Config, Registry}
 
+  require Logger
+
   @type server :: GenServer.server()
   @type option :: {:name, module()} | {:conf, Config.t()}
   @type channel :: :gossip | :insert | :leader | :signal | :stager
@@ -118,10 +120,11 @@ defmodule Oban.Notifier do
   end
 
   def listen(server, channels) when is_list(channels) do
+  Logger.info("[Seated Oban] - listen/2 - servers: #{inspect(server)}")
     :ok = validate_channels!(channels)
 
     conf = Oban.config(server)
-
+    Logger.info("[Seated Oban] - conf: #{inspect(confg)}")
     server
     |> Registry.whereis(Oban.Notifier)
     |> conf.notifier.listen(channels)
