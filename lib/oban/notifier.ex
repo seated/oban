@@ -124,7 +124,7 @@ defmodule Oban.Notifier do
     :ok = validate_channels!(channels)
 
     conf = Oban.config(server)
-    Logger.info("[Seated Oban] - conf: #{inspect(confg)}")
+    Logger.info("[Seated Oban] - conf: #{inspect(conf)}")
     server
     |> Registry.whereis(Oban.Notifier)
     |> conf.notifier.listen(channels)
