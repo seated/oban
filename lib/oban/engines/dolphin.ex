@@ -88,6 +88,18 @@ defmodule Oban.Engines.Dolphin do
     jobs
   end
 
+  def convert_to_map(%MyXQL.Result{columns: columns, rows: rows}) do
+    Enum.map(rows, fn row ->
+      data =
+        Enum.zip(columns, row)
+        |> Enum.into(%{}, fn {key, value} -> {String.to_atom(key), value} end)
+
+      changeset = Changeset.cast(%Job{}, data, Map.keys(data))
+
+      Changeset.apply_changes(changeset)
+    end)
+  end
+
   @impl Engine
   def fetch_jobs(_conf, %{paused: true} = meta, _running) do
     {:ok, {meta, []}}
@@ -102,16 +114,17 @@ defmodule Oban.Engines.Dolphin do
 
     {:ok, jobs} =
       Repo.transaction(conf, fn ->
-        fetch_query =
-          Job
-          |> where([j], j.state == "available")
-          |> where([j], j.queue == ^meta.queue)
-          |> where([j], j.attempt < j.max_attempts)
-          |> order_by(asc: :priority, asc: :scheduled_at, asc: :id)
-          |> limit(^demand)
-          |> lock("FOR UPDATE SKIP LOCKED")
+        sql = """
+        SELECT *
+        FROM `oban_jobs` AS o0
+        WHERE (o0.`state` = 'available') AND (o0.`queue` = '#{meta.queue}') AND (o0.`attempt` < o0.`max_attempts`)
+        ORDER BY o0.`priority`, o0.`scheduled_at`, o0.`id`
+        LIMIT #{demand}
+        FOR UPDATE SKIP LOCKED
+        """
 
-        jobs = Repo.all(conf, fetch_query)
+        {:ok, result} = Repo.query(conf, sql, [], query_type: :text)
+        jobs = convert_to_map(result)
         found_query = where(Job, [j], j.id in ^Enum.map(jobs, & &1.id))
 
         at = utc_now()
